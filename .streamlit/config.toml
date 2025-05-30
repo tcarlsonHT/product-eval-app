@@ -1,1 +1,9 @@
+[server]
+headless = true
 
+[theme]
+primaryColor = "#004b8d"
+font = "sans serif"
+
+[environment]
+WKHTMLTOPDF_CMD = "/home/appuser/.local/bin/wkhtmltopdf"
