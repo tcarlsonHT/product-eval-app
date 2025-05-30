@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #222;
+        }}
+        h1 {{
+            text-align: center;
+            color: #004b8d;
+        }}
+        h2 {{
+            color: #004b8d;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }}
+        table, th, td {{
+            border: 1px solid #aaa;
+        }}
+        th, td {{
+            padding: 8px 12px;
+            text-align: left;
+        }}
+        th {{
+            background-color: #f2f2f2;
+        }}
+        .summary {{
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #004b8d;
+        }}
+    </style>
+</head>
+<body>
+
+<h1>HydroTerra Product Evaluation Report</h1>
+
+<h2>Product Information</h2>
+<p><strong>Product Name:</strong> {product_name}</p>
+<p><strong>Model:</strong> {model_title}</p>
+<p><strong>URL:</strong> <a href="{product_url}">{product_url}</a></p>
+<div class="summary"><strong>Summary:</strong> {summary}</div>
+<p><strong>Date:</strong> {report_date}</p>
+
+<h2>Evaluation</h2>
+{gpt_html}
+
+</body>
+</html>
