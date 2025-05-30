@@ -1,73 +1,59 @@
 import streamlit as st
-from docx import Document
+from fpdf import FPDF
 from datetime import date
+import os
 
-st.set_page_config(page_title="HydroTerra Product Evaluation", layout="centered")
+st.set_page_config(page_title="HydroTerra Product Evaluation Tool", layout="centered")
 
-st.title("🔍 HydroTerra Product Evaluation Tool")
+st.image("HydroTerra_Logo Boxed.jpg", width=200)
+st.title("HydroTerra Product Evaluation Tool")
+st.markdown("Generate structured GPT-based product evaluations with branded PDF export.")
 
-# Step 1 – Product Info
+# Product input section
 st.header("1. Enter Product Info")
 product_name = st.text_input("Product Name")
 model_title = st.text_input("Model or Page Title")
 product_url = st.text_input("Product URL")
 summary = st.text_area("Product Summary (1–2 sentences)")
 
-# Step 2 – Generate Prompt
-if product_name and model_title and product_url and summary:
-    st.header("2. Copy Prompt for ChatGPT")
-    prompt = f"""
-You are an environmental technology analyst for HydroTerra.
+# GPT output section
+st.header("2. Paste GPT Output")
+gpt_output = st.text_area("Paste the full GPT-generated report here")
 
-Evaluate the following product and provide a structured report with:
-1. Product Overview (including service gap, innovation, and market alignment)
-2. Supplier and Distribution Considerations
-3. Competitive Landscape (whether the supplier competes with Solinst or Aquaread)
-4. Product Portfolio Review (a table with product name, description, HydroTerra fit, and a rating out of 5)
-5. Overall Recommendation and Next Steps
-6. A scoring summary out of 35 points:
-   - Service Gap (10)
-   - Innovation (5)
-   - Market Fit (10)
-   - Supplier Accessibility (5)
-   - Integration Potential (5)
+# Generate PDF
+if st.button("Generate PDF Report") and gpt_output and product_name:
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    
+    logo_path = "HydroTerra_Logo Boxed.jpg"
+    if os.path.exists(logo_path):
+        pdf.image(logo_path, x=10, y=8, w=60)
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, "Product Evaluation Report", ln=True, align="C")
+    
+    pdf.set_font("Arial", "", 12)
+    pdf.ln(10)
+    pdf.cell(200, 10, f"Product Name: {product_name}", ln=True)
+    pdf.cell(200, 10, f"Model: {model_title}", ln=True)
+    pdf.cell(200, 10, f"URL: {product_url}", ln=True)
+    pdf.multi_cell(0, 10, f"Summary: {summary}")
+    pdf.ln(5)
+    pdf.cell(200, 10, f"Generated: {date.today().strftime('%d %B %Y')}", ln=True)
+    pdf.ln(5)
+    
+    for section in gpt_output.strip().split("\n\n"):
+        lines = section.strip().split("\n")
+        if lines:
+            pdf.set_font("Arial", "B", 12)
+            pdf.multi_cell(0, 10, lines[0])
+            pdf.set_font("Arial", "", 11)
+            for line in lines[1:]:
+                pdf.multi_cell(0, 8, line)
+            pdf.ln(3)
 
-Product Name: {product_name}  
-Title: {model_title}  
-URL: {product_url}  
-Summary: {summary}
-"""
-    st.code(prompt, language="markdown")
-    st.info("👉 Copy this prompt into ChatGPT (free version) and paste the response below.")
-
-    # Step 3 – Paste GPT Output
-    st.header("3. Paste GPT Output")
-    gpt_response = st.text_area("Paste the full GPT-generated report here")
-
-    # Step 4 – Generate Word Report
-    if gpt_response:
-        st.header("4. Export Report")
-        if st.button("Generate Word Report"):
-            doc = Document()
-            doc.add_heading(f"{product_name} – Product Evaluation", 0)
-            doc.add_paragraph(f"Generated: {date.today().strftime('%d %B %Y')}")
-            doc.add_paragraph(f"Product URL: {product_url}")
-            doc.add_paragraph("")
-
-            for line in gpt_response.split("\n"):
-                if line.strip().startswith("1.") or line.strip().startswith("2.") or \
-                   line.strip().startswith("3.") or line.strip().startswith("4.") or \
-                   line.strip().startswith("5.") or line.strip().startswith("6."):
-                    doc.add_heading(line.strip(), level=1)
-                else:
-                    doc.add_paragraph(line.strip())
-
-            filename = f"{product_name.replace(' ', '_')}_Product_Evaluation_HydroTerra.docx"
-            doc.save(filename)
-            with open(filename, "rb") as file:
-                st.download_button(
-                    label="📄 Download Word Report",
-                    data=file,
-                    file_name=filename,
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                )
+    filename = f"{product_name.replace(' ', '_')}_Evaluation_Report.pdf"
+    pdf.output(filename)
+    
+    with open(filename, "rb") as f:
+        st.download_button("📄 Download PDF", f, file_name=filename, mime="application/pdf")
