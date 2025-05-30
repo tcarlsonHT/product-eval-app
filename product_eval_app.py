@@ -65,7 +65,7 @@ if st.button("Generate Styled PDF Report") and gpt_output and product_name:
 
     # Output PDF file
     pdf_filename = f"{product_name.replace(' ', '_')}_Evaluation_Report.pdf"
-    config_path = "/usr/bin/wkhtmltopdf"
+    config_path = os.getenv("WKHTMLTOPDF_CMD", "/usr/bin/wkhtmltopdf")
     if os.path.exists(config_path):
         config = pdfkit.configuration(wkhtmltopdf=config_path)
         pdfkit.from_string(rendered_html, pdf_filename, configuration=config)
